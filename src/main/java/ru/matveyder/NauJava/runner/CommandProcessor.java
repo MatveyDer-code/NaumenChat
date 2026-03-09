@@ -7,18 +7,32 @@ import ru.matveyder.NauJava.service.UserService;
 
 import java.util.List;
 
+/**
+ * Компонент для обработки консольных команд пользователя.
+ * Парсит ввод, проверяет формат аргументов и вызывает методы бизнес-логики (UserService).
+ */
 @Component
 public class CommandProcessor {
 
     private final UserService userService;
 
+    /**
+     * Конструктор с внедрением зависимости сервиса пользователей.
+     * @param userService сервис для управления пользователями
+     */
     @Autowired
     public CommandProcessor(UserService userService) {
         this.userService = userService;
     }
 
+    /**
+     * Основной метод обработки входной строки команды.
+     * Разбивает строку на части, определяет тип команды и выполняет соответствующее действие.
+     *
+     * @param input строка ввода от пользователя
+     */
     public void processCommand(String input) {
-        String[] parts = input.trim().split("\\s+");
+        String[] parts = input.trim().split(" ");
         if (parts.length == 0 || parts[0].isEmpty()) {
             return;
         }
@@ -105,6 +119,9 @@ public class CommandProcessor {
         }
     }
 
+    /**
+     * Выводит справку по доступным командам в консоль.
+     */
     private void printHelp() {
         System.out.println("--- Доступные команды ---");
         System.out.println("create <id> <login> <password> - Создать нового пользователя");

@@ -9,6 +9,11 @@ import ru.matveyder.NauJava.entity.User;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс конфигурации для создания и настройки бинов, имитирующих слой доступа к данным.
+ * Предоставляет единственный экземпляр (Singleton}) списка для хранения
+ * объектов сущности {@link User}, выступая в роли оперативной памяти вместо реальной СУБД.
+ */
 @Configuration
 public class DatabaseConfig {
 

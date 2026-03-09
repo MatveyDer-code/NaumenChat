@@ -7,11 +7,20 @@ import ru.matveyder.NauJava.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация интерфейса UserRepository.
+ * Использует список в памяти как имитацию базы данных.
+ * Класс является Singleton-бином Spring.
+ */
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
     private final List<User> database;
 
+    /**
+     * Конструктор с внедрением зависимости списка пользователей через Spring.
+     * @param database список, выступающий в роли хранилища данных
+     */
     @Autowired
     public UserRepositoryImpl(List<User> database) {
         this.database = database;

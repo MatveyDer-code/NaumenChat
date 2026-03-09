@@ -7,11 +7,20 @@ import ru.matveyder.NauJava.repository.UserRepository;
 import ru.matveyder.NauJava.service.UserService;
 import java.util.List;
 
+/**
+ * Реализация интерфейса UserService.
+ * Содержит бизнес-логику приложения и взаимодействует со слоем доступа к данным (Repository).
+ * Класс является Singleton-бином Spring.
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Конструктор с внедрением зависимости репозитория через Spring.
+     * @param userRepository компонент доступа к данным
+     */
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;

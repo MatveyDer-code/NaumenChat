@@ -7,12 +7,23 @@ import org.springframework.boot.CommandLineRunner;
 
 import java.util.Scanner;
 
+/**
+ * Класс конфигурации для запуска консольного интерфейса.
+ * Создает бин CommandLineRunner, который открывает поток ввода Scanner
+ * и передает команды процессору обработки.
+ */
 @Configuration
 public class ConsoleRunner {
 
     @Autowired
     private CommandProcessor commandProcessor;
 
+    /**
+     * Создает и возвращает реализацию CommandLineRunner.
+     * Запускает бесконечный цикл чтения команд из консоли до ввода команды 'exit'.
+     *
+     * @return лямбда-выражение, реализующее интерфейс CommandLineRunner
+     */
     @Bean
     public CommandLineRunner commandLineRunner() {
         return args -> {
