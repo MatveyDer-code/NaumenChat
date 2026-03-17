@@ -152,4 +152,29 @@ class MessageRepositoryTest {
         room.setIsPrivate(false);
         return chatRoomRepository.save(room);
     }
+
+    /// Тест метода existsByContentPrefix: проверка существования сообщения по префиксу.
+    @Test
+    void testExistsByContentPrefix() {
+        Role role = getOrCreateUserRole();
+        User author = createUser("exists_author", role);
+        ChatRoom room = createChatRoom("ExistsRoom");
+
+        // Создаем сообщение с уникальным контентом
+        String uniqueContent = "PREFIX_TEST_" + System.currentTimeMillis();
+        Message msg = new Message();
+        msg.setContent(uniqueContent);
+        msg.setSendDate(LocalDateTime.now());
+        msg.setAuthor(author);
+        msg.setChatRoom(room);
+        messageRepository.save(msg);
+
+        // Вариант А: Точное совпадение (как в твоем коде выше)
+        boolean foundExact = messageRepository.existsByContentPrefix(uniqueContent);
+        Assertions.assertTrue(foundExact, "Сообщение с точным контентом не найдено");
+
+        // Вариант Б: Проверка, что НЕ существует (другой префикс)
+        boolean foundFake = messageRepository.existsByContentPrefix("FAKE_PREFIX_12345");
+        Assertions.assertFalse(foundFake, "Найдено несуществующее сообщение");
+    }
 }

@@ -17,4 +17,7 @@ public interface MessageRepository extends JpaRepository<Message, Long>, Message
     /// Поиск сообщений по названию комнаты (через связанную сущность, JPQL).
     @Query("SELECT m FROM Message m WHERE m.chatRoom.name = :roomName")
     List<Message> findByChatRoomName(@Param("roomName") String roomName);
+
+    @Query("SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END FROM Message m WHERE m.content = :prefix")
+    boolean existsByContentPrefix(@Param("prefix") String prefix);
 }
