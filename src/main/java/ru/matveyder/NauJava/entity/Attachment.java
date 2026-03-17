@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Класс-сущность, представляющий вложение к сообщению.
@@ -22,6 +23,7 @@ public class Attachment {
     private Long id;
 
     /// Путь к файлу на сервере.
+    @NotNull
     @Column
     private String filePath;
 

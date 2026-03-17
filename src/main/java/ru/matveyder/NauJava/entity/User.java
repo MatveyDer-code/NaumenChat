@@ -1,6 +1,7 @@
 package ru.matveyder.NauJava.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,7 @@ public class User {
     private String password;
 
     /// Email пользователя.
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
 
     /// Дата последнего входа пользователя.
