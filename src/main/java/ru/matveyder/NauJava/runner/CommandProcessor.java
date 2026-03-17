@@ -1,6 +1,7 @@
 package ru.matveyder.NauJava.runner;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import ru.matveyder.NauJava.entity.User;
 import ru.matveyder.NauJava.service.UserService;
@@ -13,6 +14,7 @@ import java.util.Optional;
  * Парсит ввод, проверяет формат аргументов и вызывает методы бизнес-логики (UserService).
  */
 @Component
+@Profile("!test")
 public class CommandProcessor {
 
     private final UserService userService;
