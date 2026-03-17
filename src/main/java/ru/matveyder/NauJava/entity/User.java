@@ -57,4 +57,14 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "chat_room_id")
     )
     private Set<ChatRoom> chatRooms = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", role='" + (role != null ? role.getTitle() : "null") + '\'' +
+                '}';
+    }
 }

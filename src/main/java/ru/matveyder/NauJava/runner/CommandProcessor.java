@@ -6,6 +6,7 @@ import ru.matveyder.NauJava.entity.User;
 import ru.matveyder.NauJava.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Компонент для обработки консольных команд пользователя.
@@ -43,22 +44,22 @@ public class CommandProcessor {
             switch (command) {
                 case "create":
                     if (parts.length >= 4) {
-                        Long id = Long.parseLong(parts[1]);
-                        String login = parts[2];
-                        String password = parts[3];
-                        userService.registerUser(id, login, password);
+                        String login = parts[1];
+                        String password = parts[2];
+                        String email = parts[3];
+                        userService.registerUser(login, password, email);
                         System.out.println("Пользователь создан: " + login);
                     } else {
-                        System.out.println("Ошибка: Неверный формат. Используйте: create <id> <login> <password>");
+                        System.out.println("Ошибка: Неверный формат. Используйте: create <login> <password> <email>");
                     }
                     break;
 
                 case "get":
                     if (parts.length >= 2) {
                         Long id = Long.parseLong(parts[1]);
-                        User user = userService.getUserById(id);
-                        if (user != null) {
-                            System.out.println("Пользователь найден: " + user);
+                        Optional<User> userOpt = userService.getUserById(id);
+                        if (userOpt.isPresent()) {
+                            System.out.println("Пользователь найден: " + userOpt.get());
                         } else {
                             System.out.println("Пользователь с ID " + id + " не найден.");
                         }
@@ -114,6 +115,8 @@ public class CommandProcessor {
             }
         } catch (NumberFormatException e) {
             System.out.println("Ошибка: ID должен быть числом.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Произошла ошибка: " + e.getMessage());
         }
@@ -124,7 +127,7 @@ public class CommandProcessor {
      */
     private void printHelp() {
         System.out.println("--- Доступные команды ---");
-        System.out.println("create <id> <login> <password> - Создать нового пользователя");
+        System.out.println("create <login> <password> <email> - Создать нового пользователя");
         System.out.println("get <id>                     - Получить пользователя по ID");
         System.out.println("list                         - Показать всех пользователей");
         System.out.println("delete <id>                  - Удалить пользователя по ID");

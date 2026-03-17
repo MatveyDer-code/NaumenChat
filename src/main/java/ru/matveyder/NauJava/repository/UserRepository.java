@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.matveyder.NauJava.entity.User;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Репозиторий для работы с сущностью User.
@@ -12,7 +13,7 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /// Поиск пользователя по логину (Query Lookup Strategy).
-    List<User> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     /// Поиск пользователей по имени и email (использует ключевое слово And).
     List<User> findByUsernameAndEmail(String username, String email);
