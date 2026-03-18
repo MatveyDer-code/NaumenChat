@@ -35,10 +35,10 @@ class RoleRepositoryTest {
         role.setLevel(100);
         roleRepository.save(role);
 
-        // Выполнение: поиск по названию
+        /// Выполнение: поиск по названию
         Optional<Role> found = roleRepository.findByTitle("ADMIN");
 
-        // Проверка
+        /// Проверка
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals("Администратор", found.get().getDescription());
     }
@@ -46,10 +46,10 @@ class RoleRepositoryTest {
     /// Тест метода findByTitle: роль не найдена.
     @Test
     void testFindByTitle_NotExists() {
-        // Выполнение: поиск несуществующей роли
+        /// Выполнение: поиск несуществующей роли
         Optional<Role> found = roleRepository.findByTitle("NONEXISTENT");
 
-        // Проверка
+        /// Проверка
         Assertions.assertFalse(found.isPresent());
     }
 }

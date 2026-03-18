@@ -91,7 +91,7 @@ class UserRepositoryTest {
         Assertions.assertEquals(2, found.size());
     }
 
-    // === Вспомогательные методы ===
+    /// Вспомогательные методы
 
     /// Получить роль "USER" или создать её, если не существует.
     private Role getOrCreateUserRole() {

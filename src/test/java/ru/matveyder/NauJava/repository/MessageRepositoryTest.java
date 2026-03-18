@@ -160,7 +160,7 @@ class MessageRepositoryTest {
         User author = createUser("exists_author", role);
         ChatRoom room = createChatRoom("ExistsRoom");
 
-        // Создаем сообщение с уникальным контентом
+        /// Создаем сообщение с уникальным контентом
         String uniqueContent = "PREFIX_TEST_" + System.currentTimeMillis();
         Message msg = new Message();
         msg.setContent(uniqueContent);
@@ -169,11 +169,11 @@ class MessageRepositoryTest {
         msg.setChatRoom(room);
         messageRepository.save(msg);
 
-        // Вариант А: Точное совпадение (как в твоем коде выше)
+        /// Точное совпадение
         boolean foundExact = messageRepository.existsByContentPrefix(uniqueContent);
         Assertions.assertTrue(foundExact, "Сообщение с точным контентом не найдено");
 
-        // Вариант Б: Проверка, что НЕ существует (другой префикс)
+        /// Проверка, что НЕ существует
         boolean foundFake = messageRepository.existsByContentPrefix("FAKE_PREFIX_12345");
         Assertions.assertFalse(foundFake, "Найдено несуществующее сообщение");
     }

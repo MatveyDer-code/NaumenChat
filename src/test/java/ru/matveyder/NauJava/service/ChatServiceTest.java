@@ -92,16 +92,16 @@ class ChatServiceTest {
         attach.setFileSize(1024);
         attach.setMimeType("image/png");
 
-        // Выполнение
+        /// Выполнение
         Message result = chatService.sendMessageWithAttachment(msg, attach);
 
-        // Проверка: оба объекта сохранены и связаны
+        /// Проверка: оба объекта сохранены и связаны
         Assertions.assertNotNull(result.getId());
         Assertions.assertNotNull(attach.getId());
         Assertions.assertEquals(result.getId(), attach.getMessage().getId());
     }
 
-    // === Вспомогательные методы ===
+    /// Вспомогательные методы
 
     /// Получить роль "USER" или создать её.
     private Role getOrCreateUserRole() {
