@@ -54,21 +54,20 @@ class ChatServiceTest {
         User author = createUser("tx_rollback_user", role);
         ChatRoom room = createChatRoom("TxRollbackRoom");
 
+        String content = "ShouldRollback_" + System.currentTimeMillis();
+
         Message msg = new Message();
-        msg.setContent("ShouldRollback_" + System.currentTimeMillis());
+        msg.setContent(content);
         msg.setSendDate(LocalDateTime.now());
         msg.setAuthor(author);
         msg.setChatRoom(room);
 
         Attachment attach = new Attachment();
         attach.setFilePath(null);
-        attach.setMessage(msg);
 
-        Assertions.assertThrows(RuntimeException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             chatService.sendMessageWithAttachment(msg, attach);
         });
-        String content = "ShouldRollback_" + System.currentTimeMillis();
-        msg.setContent(content);
 
         boolean exists = messageRepository.existsByContentPrefix(content);
         Assertions.assertFalse(exists, "Транзакция не откатилась — сообщение осталось в БД");
@@ -120,6 +119,7 @@ class ChatServiceTest {
         User user = new User();
         user.setUsername(username + "_" + System.currentTimeMillis());
         user.setPassword("test_pass");
+        user.setEmail(username + "@test.com");
         user.setRole(role);
         return userRepository.save(user);
     }
