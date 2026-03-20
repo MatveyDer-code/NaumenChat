@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Репозиторий для работы с сущностью Message.
  */
-public interface MessageRepository extends JpaRepository<Message, Long>, MessageRepositoryCustom {
+public interface MessageRepository extends JpaRepository<Message, Long> {
 
     /// Поиск сообщений по автору и статусу прочтения (ключевое слово And).
     List<Message> findByAuthorIdAndIsRead(Long authorId, Boolean isRead);

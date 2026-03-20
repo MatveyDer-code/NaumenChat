@@ -10,8 +10,8 @@ import java.util.List;
 public interface MessageRepositoryCustom {
 
     /// Поиск сообщений по автору и статусу прочтения (через Criteria API).
-    List<Message> findByAuthorIdAndIsRead(Long authorId, Boolean isRead);
+    List<Message> findByAuthorIdAndIsReadCriteria(Long authorId, Boolean isRead);
 
     /// Поиск сообщений по названию комнаты (через связанную сущность, Criteria API).
-    List<Message> findByChatRoomName(String roomName);
+    List<Message> findByChatRoomNameCriteria(String roomName);
 }

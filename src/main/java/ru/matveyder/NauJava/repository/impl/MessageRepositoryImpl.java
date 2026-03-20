@@ -29,7 +29,7 @@ public class MessageRepositoryImpl implements MessageRepositoryCustom {
     }
 
     @Override
-    public List<Message> findByAuthorIdAndIsRead(Long authorId, Boolean isRead) {
+    public List<Message> findByAuthorIdAndIsReadCriteria(Long authorId, Boolean isRead) {
         /// Получаем билдер запросов
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         /// Создаем запрос для сущности Message
@@ -49,7 +49,7 @@ public class MessageRepositoryImpl implements MessageRepositoryCustom {
     }
 
     @Override
-    public List<Message> findByChatRoomName(String roomName) {
+    public List<Message> findByChatRoomNameCriteria(String roomName) {
         /// Получаем билдер запросов
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         /// Создаем запрос для сущности Message
