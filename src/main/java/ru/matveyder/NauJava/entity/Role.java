@@ -34,8 +34,4 @@ public class Role {
     /// Уровень доступа (чем больше, тем выше права).
     @Column
     private Integer level;
-
-    /// Пользователи, имеющие эту роль.
-    @OneToMany(mappedBy = "role")
-    private Set<User> users = new HashSet<>();
 }

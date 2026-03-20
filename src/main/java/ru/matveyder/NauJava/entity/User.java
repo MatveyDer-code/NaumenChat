@@ -46,10 +46,6 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    /// Сообщения, написанные пользователем.
-    @OneToMany(mappedBy = "author")
-    private Set<Message> messages = new HashSet<>();
-
     /// Комнаты чата, в которых состоит пользователь.
     @ManyToMany
     @JoinTable(
