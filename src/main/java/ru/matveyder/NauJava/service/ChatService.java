@@ -26,19 +26,18 @@ public class ChatService {
     /// Если сохранение вложения упадёт — сообщение тоже откатится.
     @Transactional
     public Message sendMessageWithAttachment(Message message, Attachment attachment) {
+        // 1. Сначала сохраняем сообщение
+        Message savedMessage = messageRepository.save(message);
+
+        // 2. Проверка ПОСЛЕ сохранения — чтобы транзакция было что откатывать
         if (attachment.getFilePath() == null || attachment.getFilePath().isEmpty()) {
             throw new IllegalArgumentException("File path cannot be null");
         }
-        /// 1. Сохраняем сообщение
-        Message savedMessage = messageRepository.save(message);
 
-        /// 2. Привязываем его к вложению
+        // 3. Привязываем и сохраняем вложение
         attachment.setMessage(savedMessage);
-
-        /// 3. Сохраняем вложение
         attachmentRepository.save(attachment);
 
-        /// 4. Возвращаем сохранённое сообщение (с прикреплённым файлом)
         return savedMessage;
     }
 }
