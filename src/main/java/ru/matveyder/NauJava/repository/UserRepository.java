@@ -1,42 +1,24 @@
 package ru.matveyder.NauJava.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.matveyder.NauJava.entity.User;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Интерфейс для доступа к данным пользователя (DAO слой).
- * Описывает базовые CRUD операции для работы с сущностью User.
+ * Репозиторий для работы с сущностью User.
  */
-public interface UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    /**
-     * Добавляет нового пользователя в базу данных.
-     * @param user объект пользователя для добавления
-     */
-    void create(User user);
+    /// Поиск пользователя по логину (Query Lookup Strategy).
+    Optional<User> findByUsername(String username);
 
-    /**
-     * Находит пользователя по его уникальному идентификатору.
-     * @param id идентификатор пользователя
-     * @return объект пользователя или null, если не найден
-     */
-    User read(Long id);
+    /// Поиск пользователей по имени и email (использует ключевое слово And).
+    List<User> findByUsernameAndEmail(String username, String email);
 
-    /**
-     * Обновляет данные существующего пользователя.
-     * @param user объект пользователя с обновленными данными
-     */
-    void update(User user);
-
-    /**
-     * Удаляет пользователя из базы данных по его идентификатору.
-     * @param id идентификатор пользователя для удаления
-     */
-    void delete(Long id);
-
-    /**
-     * Возвращает список всех пользователей.
-     * @return список всех объектов User
-     */
-    List<User> findAll();
+    /// Поиск пользователей по названию роли (через связанную сущность, JPQL).
+    @Query("SELECT u FROM User u WHERE u.role.title = :roleTitle")
+    List<User> findByRoleTitle(@Param("roleTitle") String roleTitle);
 }
