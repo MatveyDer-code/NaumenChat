@@ -3,12 +3,15 @@ package ru.matveyder.NauJava.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.matveyder.NauJava.entity.Message;
 import java.util.List;
 
 /**
  * Репозиторий для работы с сущностью Message.
  */
+
+@RepositoryRestResource(path = "messages")
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
     /// Поиск сообщений по автору и статусу прочтения (ключевое слово And).
