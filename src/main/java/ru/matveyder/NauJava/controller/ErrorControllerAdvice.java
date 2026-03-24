@@ -21,7 +21,6 @@ public class ErrorControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationErrors(MethodArgumentNotValidException ex) {
-        // Собираем все ошибки валидации в одно сообщение или мапу
         String errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
