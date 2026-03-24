@@ -1,9 +1,12 @@
 package ru.matveyder.NauJava.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.stream.Collectors;
 
 /**
  * Глобальный обработчик ошибок для REST контроллеров.
@@ -13,6 +16,21 @@ import org.slf4j.LoggerFactory;
 public class ErrorControllerAdvice {
 
     private static final Logger log = LoggerFactory.getLogger(ErrorControllerAdvice.class);
+
+    /// Обработка ошибок валидации (@NotNull, @Size и т.д.) -> 400 Bad Request
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationErrors(MethodArgumentNotValidException ex) {
+        // Собираем все ошибки валидации в одно сообщение или мапу
+        String errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        log.warn("Ошибка валидации данных: {}", errors);
+        return new ErrorResponse("Ошибка валидации: " + errors);
+    }
 
     /// Обработка ошибок валидации (неверные данные от клиента) -> 400
     @ExceptionHandler(IllegalArgumentException.class)
