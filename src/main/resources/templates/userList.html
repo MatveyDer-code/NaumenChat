@@ -19,5 +19,9 @@
         <td th:text="${user.role.title}"></td>
     </tr>
 </table>
+<form th:action="@{/logout}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <button type="submit">Выйти</button>
+</form>
 </body>
 </html>
