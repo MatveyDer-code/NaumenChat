@@ -1,5 +1,6 @@
 package ru.matveyder.NauJava.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.matveyder.NauJava.entity.Role;
 import ru.matveyder.NauJava.entity.User;
@@ -17,12 +18,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
+    private final PasswordEncoder passwordEncoder;
 
     /// Конструктор с внедрением зависимости
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /// Регистрирует нового пользователя
@@ -31,7 +33,7 @@ public class UserService {
             throw new IllegalArgumentException("Пользователь с логином '" + login + "' уже существует");
         }
 
-        // Находим или создаём роль "USER" по умолчанию
+        /// Находим или создаём роль "USER" по умолчанию
         Role userRole = roleRepository.findByTitle("USER")
                 .orElseGet(() -> {
                     Role role = new Role();
@@ -43,7 +45,7 @@ public class UserService {
 
         User user = new User();
         user.setUsername(login);
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         user.setEmail(email);
         user.setRole(userRole);
         userRepository.save(user);
