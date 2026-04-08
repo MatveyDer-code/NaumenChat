@@ -58,36 +58,41 @@ public class ReportService {
      */
     public CompletableFuture<Void> generateReportAsync(Long reportId) {
         return CompletableFuture.runAsync(() -> {
-            long totalStart = System.currentTimeMillis();
-
             try {
-                /// Поток для количества пользователей
+                /// Поток для подсчета пользователей
                 CompletableFuture<Long> userCountFuture = CompletableFuture.supplyAsync(() -> {
                     long start = System.currentTimeMillis();
                     long count = userRepository.count();
-                    long elapsed = System.currentTimeMillis() - start;
-                    System.out.println("Время подсчета пользователей: " + elapsed + " мс");
+                    long duration = System.currentTimeMillis() - start;
+                    System.out.println("Время подсчета пользователей: " + duration + " мс");
                     return count;
                 });
 
-                /// Поток для списка сообщений
+                /// Поток для получения сообщений
                 CompletableFuture<List<Message>> messagesFuture = CompletableFuture.supplyAsync(() -> {
                     long start = System.currentTimeMillis();
                     List<Message> messages = messageRepository.findAll();
-                    long elapsed = System.currentTimeMillis() - start;
-                    System.out.println("Время получения сообщений: " + elapsed + " мс");
+                    long duration = System.currentTimeMillis() - start;
+                    System.out.println("Время получения сообщений: " + duration + " мс");
                     return messages;
                 });
 
-                /// Ждем завершения обоих потоков
+                /// Ждем завершения потоков и измеряем время
+                long startPoint2 = System.currentTimeMillis();
                 Long userCount = userCountFuture.join();
+                long durationPoint2 = System.currentTimeMillis() - startPoint2;
+
+                long startPoint3 = System.currentTimeMillis();
                 List<Message> messages = messagesFuture.join();
+                long durationPoint3 = System.currentTimeMillis() - startPoint3;
 
                 /// Формируем HTML-отчет
                 StringBuilder html = new StringBuilder();
                 html.append("<html><head><title>Отчет системы</title></head><body>");
+
                 html.append("<h2>Статистика пользователей</h2>");
                 html.append("<p>Количество зарегистрированных пользователей: ").append(userCount).append("</p>");
+                html.append("<p>Время вычисления пункта 2: ").append(durationPoint2).append(" мс</p>");
 
                 html.append("<h2>Сообщения</h2>");
                 html.append("<table border='1'><tr><th>Автор</th><th>Сообщение</th><th>Дата отправки</th></tr>");
@@ -99,12 +104,13 @@ public class ReportService {
                             .append("</tr>");
                 }
                 html.append("</table>");
+                html.append("<p>Время вычисления пункта 3: ").append(durationPoint3).append(" мс</p>");
 
-                long totalElapsed = System.currentTimeMillis() - totalStart;
+                long totalElapsed = durationPoint2 + durationPoint3;
                 html.append("<p>Общее время формирования отчета: ").append(totalElapsed).append(" мс</p>");
                 html.append("</body></html>");
 
-                /// Сохраняем результат в БД
+                // Сохраняем результат в БД
                 reportRepository.findById(reportId).ifPresent(report -> {
                     report.setContent(html.toString());
                     report.setStatus(ReportStatus.COMPLETED);
@@ -112,7 +118,7 @@ public class ReportService {
                 });
 
             } catch (Exception e) {
-                /// В случае ошибки меняем статус отчета
+                // В случае ошибки меняем статус отчета
                 reportRepository.findById(reportId).ifPresent(report -> {
                     report.setStatus(ReportStatus.ERROR);
                     reportRepository.save(report);
