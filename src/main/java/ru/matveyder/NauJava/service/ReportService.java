@@ -43,22 +43,12 @@ public class ReportService {
     }
 
     /**
-     * Получение содержимого отчета по его ID.
+     * Получение отчета по его ID.
      * @param reportId ID отчета
-     * @return содержимое отчета или сообщение о статусе
+     * @return отчет
      */
-    public String getReportContent(Long reportId) {
-        return reportRepository.findById(reportId)
-                .map(report -> {
-                    if (report.getStatus() == ReportStatus.CREATED) {
-                        return "Отчет еще формируется...";
-                    } else if (report.getStatus() == ReportStatus.ERROR) {
-                        return "Ошибка при формировании отчета";
-                    } else {
-                        return report.getContent();
-                    }
-                })
-                .orElse("Отчет не найден");
+    public Report getReportContent(Long reportId) {
+        return reportRepository.findById(reportId).orElse(null);
     }
 
     /**
