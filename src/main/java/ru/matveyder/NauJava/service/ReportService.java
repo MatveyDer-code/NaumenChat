@@ -56,61 +56,76 @@ public class ReportService {
      * Количество пользователей и список сообщений вычисляются в отдельных потоках.
      * @param reportId ID отчета
      */
+    /**
+     * Асинхронное формирование отчета с подсчетом времени.
+     * Количество пользователей и список сообщений вычисляются в отдельных потоках.
+     * @param reportId ID отчета
+     */
     public CompletableFuture<Void> generateReportAsync(Long reportId) {
         return CompletableFuture.runAsync(() -> {
             try {
-                /// Поток для подсчета пользователей
-                CompletableFuture<Long> userCountFuture = CompletableFuture.supplyAsync(() -> {
-                    long start = System.currentTimeMillis();
-                    long count = userRepository.count();
-                    long duration = System.currentTimeMillis() - start;
-                    System.out.println("Время подсчета пользователей: " + duration + " мс");
-                    return count;
+                /// Переменные для хранения результатов и времени выполнения
+                final Long[] userCount = {0L};
+                final long[] userCountDuration = {0};
+
+                final List<Message>[] messagesArray = new List[]{null};
+                final long[] messagesDuration = {0};
+
+                /// Поток для подсчета пользователей (явное создание Thread)
+                Thread userCountThread = new Thread(() -> {
+                    long startTime = System.currentTimeMillis();
+                    userCount[0] = userRepository.count();
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    userCountDuration[0] = elapsed;
+                    System.out.println("Время подсчета пользователей: " + elapsed + " мс");
                 });
 
-                /// Поток для получения сообщений
-                CompletableFuture<List<Message>> messagesFuture = CompletableFuture.supplyAsync(() -> {
-                    long start = System.currentTimeMillis();
-                    List<Message> messages = messageRepository.findAll();
-                    long duration = System.currentTimeMillis() - start;
-                    System.out.println("Время получения сообщений: " + duration + " мс");
-                    return messages;
+                /// Поток для получения сообщений (явное создание Thread)
+                Thread messagesThread = new Thread(() -> {
+                    long startTime = System.currentTimeMillis();
+                    messagesArray[0] = messageRepository.findAll();
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    messagesDuration[0] = elapsed;
+                    System.out.println("Время получения сообщений: " + elapsed + " мс");
                 });
 
-                /// Ждем завершения потоков и измеряем время
-                long startPoint2 = System.currentTimeMillis();
-                Long userCount = userCountFuture.join();
-                long durationPoint2 = System.currentTimeMillis() - startPoint2;
+                /// Запускаем оба потока
+                userCountThread.start();
+                messagesThread.start();
 
-                long startPoint3 = System.currentTimeMillis();
-                List<Message> messages = messagesFuture.join();
-                long durationPoint3 = System.currentTimeMillis() - startPoint3;
+                /// Ждем завершения обоих потоков (join)
+                userCountThread.join();
+                messagesThread.join();
+
+                List<Message> messages = messagesArray[0];
 
                 /// Формируем HTML-отчет
                 StringBuilder html = new StringBuilder();
                 html.append("<html><head><title>Отчет системы</title></head><body>");
 
                 html.append("<h2>Статистика пользователей</h2>");
-                html.append("<p>Количество зарегистрированных пользователей: ").append(userCount).append("</p>");
-                html.append("<p>Время вычисления пункта 2: ").append(durationPoint2).append(" мс</p>");
+                html.append("<p>Количество зарегистрированных пользователей: ").append(userCount[0]).append("</p>");
+                html.append("<p>Время вычисления пункта 2: ").append(userCountDuration[0]).append(" мс</p>");
 
                 html.append("<h2>Сообщения</h2>");
                 html.append("<table border='1'><tr><th>Автор</th><th>Сообщение</th><th>Дата отправки</th></tr>");
                 for (Message m : messages) {
+                    String author = (m.getAuthor() != null) ? m.getAuthor().getUsername() : "Неизвестно";
                     html.append("<tr>")
-                            .append("<td>").append(m.getAuthor().getUsername()).append("</td>")
-                            .append("<td>").append(m.getContent()).append("</td>")
+                            .append("<td>").append(author).append("</td>")
+                            .append("<td>").append(m.getContent() != null ? m.getContent() : "").append("</td>")
                             .append("<td>").append(m.getSendDate()).append("</td>")
                             .append("</tr>");
                 }
                 html.append("</table>");
-                html.append("<p>Время вычисления пункта 3: ").append(durationPoint3).append(" мс</p>");
+                html.append("<p>Время вычисления пункта 3: ").append(messagesDuration[0]).append(" мс</p>");
 
-                long totalElapsed = durationPoint2 + durationPoint3;
+                /// Общее время = максимум из двух (т.к. они выполнялись параллельно)
+                long totalElapsed = Math.max(userCountDuration[0], messagesDuration[0]);
                 html.append("<p>Общее время формирования отчета: ").append(totalElapsed).append(" мс</p>");
                 html.append("</body></html>");
 
-                // Сохраняем результат в БД
+                /// Сохраняем результат в БД со статусом COMPLETED
                 reportRepository.findById(reportId).ifPresent(report -> {
                     report.setContent(html.toString());
                     report.setStatus(ReportStatus.COMPLETED);
@@ -118,7 +133,7 @@ public class ReportService {
                 });
 
             } catch (Exception e) {
-                // В случае ошибки меняем статус отчета
+                /// В случае ошибки меняем статус отчета на ERROR
                 reportRepository.findById(reportId).ifPresent(report -> {
                     report.setStatus(ReportStatus.ERROR);
                     reportRepository.save(report);
