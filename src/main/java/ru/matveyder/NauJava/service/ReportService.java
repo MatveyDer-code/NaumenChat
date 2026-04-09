@@ -56,11 +56,6 @@ public class ReportService {
      * Количество пользователей и список сообщений вычисляются в отдельных потоках.
      * @param reportId ID отчета
      */
-    /**
-     * Асинхронное формирование отчета с подсчетом времени.
-     * Количество пользователей и список сообщений вычисляются в отдельных потоках.
-     * @param reportId ID отчета
-     */
     public CompletableFuture<Void> generateReportAsync(Long reportId) {
         return CompletableFuture.runAsync(() -> {
             try {
