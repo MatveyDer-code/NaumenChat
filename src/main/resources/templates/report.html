@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет системы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .stats {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>Отчет системы</h1>
+
+<h2>Статистика пользователей</h2>
+<div class="stats">
+    <p><strong>Количество зарегистрированных пользователей:</strong> <span th:text="${userCount}">0</span></p>
+    <p><strong>Время вычисления пункта 2:</strong> <span th:text="${userCountDuration}">0</span> мс</p>
+</div>
+
+<h2>Сообщения</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Автор</th>
+        <th>Сообщение</th>
+        <th>Дата отправки</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="message : ${messages}">
+        <td th:text="${message.author != null ? message.author.username : 'Неизвестно'}">Автор</td>
+        <td th:text="${message.content}">Содержимое</td>
+        <td th:text="${message.sendDate}">Дата</td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(messages)}">
+        <td colspan="3" style="text-align: center;">Сообщений нет</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="stats">
+    <p><strong>Время вычисления пункта 3:</strong> <span th:text="${messagesDuration}">0</span> мс</p>
+</div>
+
+<div class="stats">
+    <p><strong>Общее время формирования отчета:</strong> <span th:text="${totalElapsed}">0</span> мс</p>
+</div>
+</body>
+</html>

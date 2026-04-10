@@ -1,6 +1,8 @@
 package ru.matveyder.NauJava.service;
 
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import ru.matveyder.NauJava.entity.Report;
 import ru.matveyder.NauJava.entity.utility.ReportStatus;
 import ru.matveyder.NauJava.entity.Message;
@@ -21,13 +23,16 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
+    private final TemplateEngine templateEngine;
 
     public ReportService(ReportRepository reportRepository,
                          UserRepository userRepository,
-                         MessageRepository messageRepository) {
+                         MessageRepository messageRepository,
+                         TemplateEngine templateEngine) {
         this.reportRepository = reportRepository;
         this.userRepository = userRepository;
         this.messageRepository = messageRepository;
+        this.templateEngine = templateEngine;
     }
 
     /**
@@ -59,76 +64,52 @@ public class ReportService {
     public CompletableFuture<Void> generateReportAsync(Long reportId) {
         return CompletableFuture.runAsync(() -> {
             try {
-                /// Переменные для хранения результатов и времени выполнения
-                final Long[] userCount = {0L};
+                // Переменные для хранения времени выполнения
                 final long[] userCountDuration = {0};
-
-                final List<Message>[] messagesArray = new List[]{null};
                 final long[] messagesDuration = {0};
 
-                /// Поток для подсчета пользователей (явное создание Thread)
-                Thread userCountThread = new Thread(() -> {
-                    long startTime = System.currentTimeMillis();
-                    userCount[0] = userRepository.count();
-                    long elapsed = System.currentTimeMillis() - startTime;
-                    userCountDuration[0] = elapsed;
-                    System.out.println("Время подсчета пользователей: " + elapsed + " мс");
+                // Поток для подсчета пользователей
+                CompletableFuture<Long> userCountFuture = CompletableFuture.supplyAsync(() -> {
+                    long start = System.currentTimeMillis();
+                    long count = userRepository.count();
+                    userCountDuration[0] = System.currentTimeMillis() - start;
+                    return count;
                 });
 
-                /// Поток для получения сообщений (явное создание Thread)
-                Thread messagesThread = new Thread(() -> {
-                    long startTime = System.currentTimeMillis();
-                    messagesArray[0] = messageRepository.findAll();
-                    long elapsed = System.currentTimeMillis() - startTime;
-                    messagesDuration[0] = elapsed;
-                    System.out.println("Время получения сообщений: " + elapsed + " мс");
+                // Поток для получения сообщений
+                CompletableFuture<List<Message>> messagesFuture = CompletableFuture.supplyAsync(() -> {
+                    long start = System.currentTimeMillis();
+                    List<Message> messages = messageRepository.findAll();
+                    messagesDuration[0] = System.currentTimeMillis() - start;
+                    return messages;
                 });
 
-                /// Запускаем оба потока
-                userCountThread.start();
-                messagesThread.start();
+                // Ждем завершения обоих потоков
+                Long userCount = userCountFuture.join();
+                List<Message> messages = messagesFuture.join();
 
-                /// Ждем завершения обоих потоков (join)
-                userCountThread.join();
-                messagesThread.join();
-
-                List<Message> messages = messagesArray[0];
-
-                /// Формируем HTML-отчет
-                StringBuilder html = new StringBuilder();
-                html.append("<html><head><title>Отчет системы</title></head><body>");
-
-                html.append("<h2>Статистика пользователей</h2>");
-                html.append("<p>Количество зарегистрированных пользователей: ").append(userCount[0]).append("</p>");
-                html.append("<p>Время вычисления пункта 2: ").append(userCountDuration[0]).append(" мс</p>");
-
-                html.append("<h2>Сообщения</h2>");
-                html.append("<table border='1'><tr><th>Автор</th><th>Сообщение</th><th>Дата отправки</th></tr>");
-                for (Message m : messages) {
-                    String author = (m.getAuthor() != null) ? m.getAuthor().getUsername() : "Неизвестно";
-                    html.append("<tr>")
-                            .append("<td>").append(author).append("</td>")
-                            .append("<td>").append(m.getContent() != null ? m.getContent() : "").append("</td>")
-                            .append("<td>").append(m.getSendDate()).append("</td>")
-                            .append("</tr>");
-                }
-                html.append("</table>");
-                html.append("<p>Время вычисления пункта 3: ").append(messagesDuration[0]).append(" мс</p>");
-
-                /// Общее время = максимум из двух (т.к. они выполнялись параллельно)
+                // Общее время = максимум из двух (т.к. они выполнялись параллельно)
                 long totalElapsed = Math.max(userCountDuration[0], messagesDuration[0]);
-                html.append("<p>Общее время формирования отчета: ").append(totalElapsed).append(" мс</p>");
-                html.append("</body></html>");
 
-                /// Сохраняем результат в БД со статусом COMPLETED
+                // Формируем HTML-отчет через Thymeleaf
+                Context context = new Context();
+                context.setVariable("userCount", userCount);
+                context.setVariable("userCountDuration", userCountDuration[0]);
+                context.setVariable("messages", messages);
+                context.setVariable("messagesDuration", messagesDuration[0]);
+                context.setVariable("totalElapsed", totalElapsed);
+
+                String htmlContent = templateEngine.process("report", context);
+
+                // Сохраняем результат в БД
                 reportRepository.findById(reportId).ifPresent(report -> {
-                    report.setContent(html.toString());
+                    report.setContent(htmlContent);
                     report.setStatus(ReportStatus.COMPLETED);
                     reportRepository.save(report);
                 });
 
             } catch (Exception e) {
-                /// В случае ошибки меняем статус отчета на ERROR
+                // В случае ошибки меняем статус отчета
                 reportRepository.findById(reportId).ifPresent(report -> {
                     report.setStatus(ReportStatus.ERROR);
                     reportRepository.save(report);

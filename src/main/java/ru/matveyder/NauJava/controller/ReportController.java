@@ -38,7 +38,7 @@ public class ReportController {
      * @param reportId ID отчета
      * @return HTML содержимое отчета или сообщение о статусе
      */
-    @GetMapping("/{reportId}")
+    @GetMapping("/{reportId:[0-9]+}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> getReport(@PathVariable Long reportId) {
         Report report = reportService.getReportContent(reportId);
