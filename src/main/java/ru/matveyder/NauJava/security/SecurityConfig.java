@@ -33,6 +33,9 @@ public class SecurityConfig {
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/reports/**")
+                )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/view/users", true)
