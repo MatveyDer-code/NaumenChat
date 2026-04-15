@@ -1,4 +1,4 @@
 package ru.matveyder.NauJava.entity.DTO;
 
-public record ErrorResponse() {
+public record ErrorResponse(String message) {
 }
