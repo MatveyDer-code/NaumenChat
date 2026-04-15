@@ -1,6 +1,7 @@
 package ru.matveyder.NauJava.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.matveyder.NauJava.entity.DTO.MessageDto;
 import ru.matveyder.NauJava.entity.Message;
 import ru.matveyder.NauJava.repository.MessageRepository;
 import ru.matveyder.NauJava.repository.MessageRepositoryCustom;
@@ -25,10 +26,19 @@ public class MessageController {
 
     /// Поиск сообщений по автору и статусу прочтения (Spring Data)
     @GetMapping("/by-author")
-    public List<Message> findByAuthorAndIsRead(
+    public List<MessageDto> findByAuthorAndIsRead(
             @RequestParam Long authorId,
             @RequestParam Boolean isRead) {
-        return messageRepository.findByAuthorIdAndIsRead(authorId, isRead);
+        return messageRepository.findByAuthorIdAndIsRead(authorId, isRead)
+                .stream()
+                .map(m -> new MessageDto(
+                        m.getId(),
+                        m.getContent(),
+                        m.getAuthor().getId(),
+                        m.getChatRoom().getId(),
+                        m.getIsRead()
+                ))
+                .toList();
     }
 
     /// Поиск сообщений по названию комнаты (JPQL)
