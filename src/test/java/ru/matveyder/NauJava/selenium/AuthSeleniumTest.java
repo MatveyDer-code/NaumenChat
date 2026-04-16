@@ -25,9 +25,9 @@ import java.time.Duration;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AuthSeleniumTest {
 
-    /// Порт на котором запущено приложение.
     @LocalServerPort
     private int port;
 
@@ -41,14 +41,19 @@ class AuthSeleniumTest {
     private WebDriverWait wait;
     private String baseUrl;
 
+    /// Логин тестового пользователя.
     private static final String TEST_USER = "selenium_user";
+    /// Пароль тестового пользователя.
     private static final String TEST_PASS = "selenium_pass123";
 
-    @BeforeEach
-    void setUp() {
+    /**
+     * Выполняется один раз перед всеми тестами.
+     * Создаёт тестового пользователя в базе данных.
+     */
+    @BeforeAll
+    void setUpOnce() {
         baseUrl = "http://localhost:" + port;
 
-        // Создаём роль USER если не существует
         roleRepository.findByTitle("USER").orElseGet(() -> {
             Role role = new Role();
             role.setTitle("USER");
@@ -60,8 +65,16 @@ class AuthSeleniumTest {
         try {
             userService.registerUser(TEST_USER, TEST_PASS, TEST_USER + "@test.com");
         } catch (IllegalArgumentException e) {
+            // Пользователь уже существует — ок
         }
+    }
 
+    /**
+     * Выполняется перед каждым тестом.
+     * Инициализирует свежий экземпляр WebDriver.
+     */
+    @BeforeEach
+    void setUp() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -71,6 +84,7 @@ class AuthSeleniumTest {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
+    /// Закрывает браузер после каждого теста.
     @AfterEach
     void tearDown() {
         if (driver != null) {
@@ -118,7 +132,6 @@ class AuthSeleniumTest {
     /// Тест успешного выхода из приложения.
     @Test
     void testSuccessfulLogout() {
-        // Входим
         driver.get(baseUrl + "/login");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")))
                 .sendKeys(TEST_USER);
@@ -126,7 +139,6 @@ class AuthSeleniumTest {
         driver.findElement(By.cssSelector("input[type='submit']")).click();
         wait.until(ExpectedConditions.urlContains("/view/users"));
 
-        // Выходим
         WebElement logoutBtn = wait.until(
                 ExpectedConditions.elementToBeClickable(By.cssSelector("button[type='submit']"))
         );
