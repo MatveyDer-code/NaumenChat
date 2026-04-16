@@ -28,7 +28,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    /// Пароль пользователя (в реальном проекте нужно хешировать).
+    /// Пароль пользователя
     @Column(nullable = false)
     private String password;
 
