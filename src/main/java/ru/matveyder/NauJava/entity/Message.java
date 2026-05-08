@@ -39,12 +39,12 @@ public class Message {
     private Boolean isRead;
 
     /// Автор сообщения.
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
     /// Комната, в которую отправлено сообщение.
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 

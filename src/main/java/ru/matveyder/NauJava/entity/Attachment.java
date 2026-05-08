@@ -36,7 +36,7 @@ public class Attachment {
     private String mimeType;
 
     /// Сообщение, к которому прикреплено вложение.
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "message_id", nullable = false)
     @EqualsAndHashCode.Include
     private Message message;
