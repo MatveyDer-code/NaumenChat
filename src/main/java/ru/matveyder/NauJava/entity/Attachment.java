@@ -1,9 +1,7 @@
 package ru.matveyder.NauJava.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -12,9 +10,11 @@ import jakarta.validation.constraints.NotNull;
  */
 @Entity
 @Table(name = "attachments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Attachment {
 
     /// Уникальный идентификатор вложения.
@@ -38,5 +38,6 @@ public class Attachment {
     /// Сообщение, к которому прикреплено вложение.
     @ManyToOne
     @JoinColumn(name = "message_id", nullable = false)
+    @EqualsAndHashCode.Include
     private Message message;
 }
