@@ -1,9 +1,8 @@
 package ru.matveyder.NauJava.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,17 +12,21 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Role {
 
     /// Уникальный идентификатор роли.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     /// Название роли (например, ADMIN, USER).
+    @EqualsAndHashCode.Include
     @Column(nullable = false, unique = true)
     private String title;
 

@@ -1,9 +1,7 @@
 package ru.matveyder.NauJava.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.matveyder.NauJava.entity.utility.ReportStatus;
 
 /**
@@ -12,9 +10,11 @@ import ru.matveyder.NauJava.entity.utility.ReportStatus;
  */
 @Entity
 @Table(name = "reports")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Report {
 
     /// Уникальный идентификатор отчета.
@@ -30,5 +30,6 @@ public class Report {
     /// Содержимое отчета в формате HTML.
     @Lob
     @Column(nullable = false)
+    @EqualsAndHashCode.Include
     private String content;
 }

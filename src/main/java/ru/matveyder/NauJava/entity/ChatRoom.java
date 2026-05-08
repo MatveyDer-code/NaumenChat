@@ -1,9 +1,8 @@
 package ru.matveyder.NauJava.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,9 +13,11 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "chat_rooms")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ChatRoom {
 
     /// Уникальный идентификатор комнаты.
@@ -26,6 +27,7 @@ public class ChatRoom {
 
     /// Название комнаты чата.
     @Column(nullable = false)
+    @EqualsAndHashCode.Include
     private String name;
 
     /// Дата создания комнаты.
